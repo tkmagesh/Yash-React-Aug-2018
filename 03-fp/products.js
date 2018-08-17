@@ -14,6 +14,14 @@ function describe(title, fn){
 	console.groupEnd();
 }
 
+function describeGroup(groupedObj){
+	for(var key in groupedObj){
+		describe('Key - [' + key + ']', function(){
+			console.table(groupedObj[key]);
+		});
+	}
+}
+
 describe('Default List', function(){
 	console.table(products);
 });
@@ -33,7 +41,13 @@ describe('Sorting', function(){
 		sort();
 		console.table(products);
 	});
-	function sort(list, comparer){
+
+	function getDescendingComparer(comparer){
+		return function(item1, item2){
+			return comparer(item1, item2) * -1;
+		}
+	}
+	function sort(list, comparer, isDescending = false){
 		var comparerFn = function(){ return 0};
 		if (typeof comparer === 'function')
 			comparerFn = comparer;
@@ -43,6 +57,9 @@ describe('Sorting', function(){
 				if (item1[comparer] > item2[comparer]) return 1;
 				return 0;
 			}
+		if (isDescending)
+			comparerFn = getDescendingComparer(comparerFn);
+
 		for(var i = 0, count = list.length-1; i < count; i++)
 			for(var j=i+1, count = list.length; j < count; j++)
 				if (comparerFn(list[i], list[j]) > 0){
@@ -71,6 +88,11 @@ describe('Sorting', function(){
 			sort(products, 'units');
 			console.table(products);
 		});
+
+		describe('Products by units [ Descending ]', function(){
+			sort(products, 'units', true);
+			console.table(products);
+		});
 	});
 
 	describe('Any list by any comparer', function(){
@@ -96,7 +118,6 @@ describe('Sorting', function(){
 		});
 	});
 });
-
 
 describe('Filtering', function(){
 	describe('Default filter [staionary products]', function(){
@@ -162,4 +183,40 @@ describe('Filtering', function(){
 			})
 		});
 	})
+});
+
+describe('Grouping', function(){
+	describe('Products by category', function(){
+		function groupProductsByCategory(){
+			var result = [];
+			for(var index = 0, count = products.length; index < count; index++){
+				var key = products[index].category;
+				if (typeof result[key] === 'undefined')
+					result[key] = [];
+				result[key].push(products[index]);
+			}
+			return result;
+		}
+
+		var productsByCategory = groupProductsByCategory();
+		describeGroup(productsByCategory);
+	});
+
+	function groupBy(list, keySelectorFn){
+		var result = [];
+			for(var index = 0, count = list.length; index < count; index++){
+				var key = keySelectorFn(list[index]);
+				if (typeof result[key] === 'undefined')
+					result[key] = [];
+				result[key].push(list[index]);
+			}
+			return result;
+	}
+	describe('Products by cost', function(){
+		var costKeySelector = function(product){
+			return product.cost > 50 ? 'costly' : 'affordable';
+		};
+		var productsByCost = groupBy(products, costKeySelector);
+		describeGroup(productsByCost);
+	});
 });
