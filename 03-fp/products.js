@@ -206,8 +206,7 @@ describe('Grouping', function(){
 		var result = [];
 			for(var index = 0, count = list.length; index < count; index++){
 				var key = keySelectorFn(list[index]);
-				if (typeof result[key] === 'undefined')
-					result[key] = [];
+				result[key] = result[key] || [];
 				result[key].push(list[index]);
 			}
 			return result;
