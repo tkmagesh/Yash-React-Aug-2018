@@ -12,20 +12,21 @@
 			state = {
 				greetMsg : '[Dummy greet message]'
 			};
-			userName = '';
+			
 
 			onBtnGreetClick = () => {
-				this.setState({greetMsg : `Hi ${this.userName}, Have a nice day!`});
+				this.setState({
+					greetMsg : `Hi ${this.userName}, Have a nice day!`
+				});
 			}
 
 			render(){
-				
 				return(
 					<div>
 						<h1>Greeter</h1>
 						<hr/>
 						<label>User Name :</label>
-						<input type="text" onChange={evt => this.userName = evt.target.value}/>
+						<input type="text" defaultValue="Magesh" onChange={evt => this.userName = evt.target.value}/>
 						<input type="button" value="Greet" onClick={this.onBtnGreetClick}/>
 						<div>{this.state.greetMsg}</div>
 					</div>
