@@ -12,12 +12,15 @@
 			state = {
 				greetMsg : '[Dummy greet message]'
 			};
+			userName = '';
 
-			txtUserNameRef = React.createRef();
-			
 			onBtnGreetClick = () => {
-				let userName = this.txtUserNameRef.current.value;
-				this.setState({greetMsg : `Hi ${userName}, Have a nice day!`});
+				//let userName = this.txtUserNameRef.current.value;
+				this.setState({greetMsg : `Hi ${this.userName}, Have a nice day!`});
+			}
+
+			onTxtUserNameChange = (evt) => {
+				this.userName = evt.target.value;
 			}
 			render(){
 				
@@ -26,7 +29,7 @@
 						<h1>Greeter</h1>
 						<hr/>
 						<label>User Name :</label>
-						<input type="text" ref={this.txtUserNameRef}/>
+						<input type="text" onChange={this.onTxtUserNameChange}/>
 						<input type="button" value="Greet" onClick={this.onBtnGreetClick}/>
 						<div>{this.state.greetMsg}</div>
 					</div>
