@@ -3,22 +3,54 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Products</title>
+	<style>
+		.count{
+			font-size : 20pt;
+		}
+	</style>
 	<script src="react.js"></script>
 	<script src="react-dom.js"></script>
 	<script src="babel.min.js"></script>
 	<script type="text/babel">
+		class EventEmitter{
+			_listeners = [];
+			subscribe(listenerFn){
+				this._listeners.push(listenerFn);
+			}
+			triggerChange(){
+				this._listeners.forEach(listenerFn => listenerFn());
+			}
+		}
+
+		class Products extends EventEmitter{
+			_list = [];
+
+			getAll(){
+				return [...this._list];
+			}
+			addNew(item){
+				this._list.push(item);
+				this.triggerChange();
+			}
+		}
+
+
 		class ProductList extends React.Component{
+			state = {
+				newProductName : ''
+			}
+			onAddNewClick = () => {
+				this.props.model.addNew(this.state.newProductName);
+			}
 			render(){
-				let products = ['Pen', 'Pencil', 'Marker'];
-				/*let productItems = [];
-				for(let index = 0, count = products.length; index < count; index++){
-					let productItem = (<li key={index}>{products[index]}</li>);
-					productItems.push(productItem);
-				}*/
-				let productItems = products.map((product, index) => (<li key={index}>{product}</li>));
+				let { model } = this.props;
+				let productItems = model.getAll().map((product, index) => (<li key={index}>{product}</li>));
 				return(
 					<div>
-						{/*<span>blah blah</span>*/}
+						<label>Product Name :</label>
+						<input type="text" onChange={evt => this.setState({newProductName : evt.target.value})}/>
+						<span> [ {this.state.newProductName.length} ] </span>
+						<input type="button" value="Add New" onClick={this.onAddNewClick}/>
 						<ol>
 							{productItems}
 						</ol>
@@ -27,8 +59,33 @@
 			}
 		}
 
-		ReactDOM.render(<ProductList />, 
-			document.getElementById('root'));
+		class ProductCount extends React.Component{
+			render(){
+				return (<div className="count"> [{this.props.data}] </div>);
+			}
+
+		}
+
+		class MyApp extends React.Component{
+			render(){
+				let { model } = this.props;
+				return(
+					<div>
+						<ProductCount data={model.getAll().length}/>
+						<ProductList model={model}/>
+					</div>
+				)
+			}
+		}
+
+		var model = new Products();
+		function renderApp(){
+			ReactDOM.render(
+				<MyApp model={model}/>, 
+				document.getElementById('root'));
+		}
+		model.subscribe(renderApp);
+		renderApp();
 	</script>
 </head>
 <body>
