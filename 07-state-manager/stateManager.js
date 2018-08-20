@@ -23,11 +23,11 @@ var SM = (function(){
 		triggerChange();
 	}
 
-	function crearteStore(reducer){
+	function createStore(reducer){
 		_reducer = reducer;
 		_currentState = _reducer(_currentState, _init_action);
 		return { getState, subscribe, dispatch };
 	}
 
-	return { crearteStore };
+	return { createStore };
 })();
