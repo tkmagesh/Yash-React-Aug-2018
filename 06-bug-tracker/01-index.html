@@ -60,14 +60,24 @@
 			}
 		}
 
+		class Bug{
+			name = '';
+			isClosed = false;
+
+			constructor(name){
+				this.name = name;
+			}
+
+			toggle(){
+				this.isClosed = !this.isClosed;
+			}
+		}
+
 		class BugsCollection extends EventEmitter{
 			_list = [];
 
 			addNew(newBugName){
-				let newBug = {
-					name : newBugName,
-					isClosed : false
-				};
+				let newBug = new Bug(newBugName);
 				this._list.push(newBug);
 				this.triggerChange();
 			}
@@ -124,7 +134,8 @@
 
 		class BugItem extends React.Component{
 			onBugNameClick = () => {
-				console.log('a bug is to be toggled', this.props.model);
+				this.props.model.toggle();
+				console.log(this.props.model);
 			}
 			render(){
 				let { model : bug } = this.props;
