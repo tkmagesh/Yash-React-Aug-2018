@@ -85,6 +85,11 @@
 			getAll(){
 				return [...this._list];
 			}
+
+			removeClosed(){
+				this._list = this._list.filter(bug => !bug.isClosed);\
+				this.triggerChange();
+			}
 		}
 		class BugTracker extends React.Component{
 			txtNewBugNameRef = React.createRef();
@@ -92,7 +97,6 @@
 			onCreateNewClick = () => {
 				this.props.model.addNew(this.txtNewBugNameRef.current.value);
 			}
-
 			
 			render(){
 				let { model } = this.props,
@@ -125,7 +129,7 @@
 							<ol>
 								{bugItems}
 							</ol>
-							<input type="button" value="Remove Closed" />
+							<input type="button" value="Remove Closed" onClick={() => this.props.model.removeClosed()} />
 						</section>
 					</div>
 				)
