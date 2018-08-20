@@ -64,7 +64,11 @@
 			_list = [];
 
 			addNew(newBugName){
-				this._list.push(newBugName);
+				let newBug = {
+					name : newBugName,
+					isClosed : false
+				};
+				this._list.push(newBug);
 				this.triggerChange();
 			}
 
@@ -78,14 +82,13 @@
 			onCreateNewClick = () => {
 				this.props.model.addNew(this.txtNewBugNameRef.current.value);
 			}
+
+			
 			render(){
 				let { model } = this.props,
 					bugs = model.getAll(),
 					bugItems = bugs.map((bug, index) => (
-						<li key={index}>
-							<span className="bugname">{bug}</span>
-							<div className="datetime">[created at]</div>
-						</li>
+						<BugItem model={bug} key={index}/>
 					))
 				return(
 					<div>
@@ -115,6 +118,23 @@
 							<input type="button" value="Remove Closed" />
 						</section>
 					</div>
+				)
+			}
+		}
+
+		class BugItem extends React.Component{
+			onBugNameClick = () => {
+				console.log('a bug is to be toggled', this.props.model);
+			}
+			render(){
+				let { model : bug } = this.props;
+				return(
+					<li>
+						<span className="bugname" onClick={this.onBugNameClick}>
+							{JSON.stringify(bug)}
+						</span>
+						<div className="datetime">[created at]</div>
+					</li>
 				)
 			}
 		}
