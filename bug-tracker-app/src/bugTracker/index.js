@@ -11,6 +11,9 @@ import BugList from './views/bugList';
 
 
 class BugTracker extends Component{
+    componentDidMount(){
+        this.props.load();
+    }
     render(){
         let { bugs, addNew, toggle, removeClosed } = this.props;
         return(
