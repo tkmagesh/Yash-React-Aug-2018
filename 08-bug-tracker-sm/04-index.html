@@ -39,6 +39,8 @@
 	<script src="react-dom.js"></script>
 	<script src="babel.min.js"></script>
 	<script src="redux.js"></script>
+	<script src="react-redux.js"></script>
+
 	<script type="text/usecases">
 		1. add new bugs
 		2. list the bugs
@@ -217,27 +219,57 @@
 			</div>
 		);
 
-		{/* Binding Actions*/}
-		let bugActions = Redux.bindActionCreators(bugActionCreators, store.dispatch);
-		let spinnerActions = Redux.bindActionCreators(spinnerActionCreators, store.dispatch);
+		{/* Connect for Spinner */}
+		let ConnectedSpinner = (function(){
+			function mapStateToSpinnerProps(storeState){
+				let spinnerValue = storeState.spinnerData;
+				return { spinnerValue : spinnerValue };
+			}
 
+			function mapDispatchToSpinnerProps(dispatch){
+				let spinnerActions = Redux.bindActionCreators(spinnerActionCreators, dispatch);
+				return spinnerActions;
+			}
+
+			return ReactRedux.connect(
+				mapStateToSpinnerProps,
+				mapDispatchToSpinnerProps
+			)(Spinner);
+		})();
+		
+
+		{/* Connect for BugTracker */}
+		let ConnectedBugTracker = (function(){
+			function mapStateToBugTrackerProps(storeState){
+				let bugs = storeState.bugsData;
+				return { bugs : bugs };
+			}
+
+			function mapDispatchToBugTrackerProps(dispatch){
+				let bugActions = Redux.bindActionCreators(bugActionCreators, store.dispatch);
+				return bugActions;
+			}
+
+			return ReactRedux.connect(
+				mapStateToBugTrackerProps,
+				mapDispatchToBugTrackerProps
+			)(BugTracker);
+		})();
+		
+
+		
 		{/* rendering the app*/}
-		function renderApp(){
-			let storeState = store.getState(),
-				bugs = storeState.bugsData,
-				spinnerValue = storeState.spinnerData;
-
-			
-			ReactDOM.render(
+		
+		ReactDOM.render(
+			<ReactRedux.Provider store={store} >
 				<div>
-					<Spinner spinnerValue={spinnerValue} {...spinnerActions}/>
+					<ConnectedSpinner/>
 					<hr />
-					<BugTracker bugs={bugs} {...bugActions} />
-				</div>,
-				document.getElementById('root'));
-		}
-		renderApp();
-		store.subscribe(renderApp);
+					<ConnectedBugTracker/>
+				</div>
+			</ReactRedux.Provider>,
+			document.getElementById('root'));
+		
 	</script>
 </head>
 <body>
