@@ -38,7 +38,7 @@
 	<script src="react.js"></script>
 	<script src="react-dom.js"></script>
 	<script src="babel.min.js"></script>
-	<script src="stateManager.js"></script>
+	<script src="redux.js"></script>
 	<script type="text/usecases">
 		1. add new bugs
 		2. list the bugs
@@ -52,6 +52,7 @@
 	</script>
 	<script type="text/babel">
 
+		{/* Reducers */}
 		function bugsReducer(currentState = [], action){
 			if (action.type === 'ADD_NEW'){
 				let newBug = action.payload;
@@ -70,6 +71,19 @@
 			}
 			return currentState;
 		}
+
+		function spinnerReducer(currentState = 0, action){
+			if (action.type === 'INCREMENT') return ++currentState;
+			if (action.type === 'DECREMENT') return --currentState;
+			return currentState;
+		}
+
+		let rootReducer = Redux.combineReducers({
+			bugsData : bugsReducer,
+			spinnerData : spinnerReducer
+		});
+
+		{/* Action Creators */}
 
 		let bugActionCreators = {
 			addNew(newBugName){
@@ -92,10 +106,26 @@
 			}
 		}
 
-		let store = SM.createStore(bugsReducer);
+		var spinnerActionCreators = {
+			increment(){
+				var action = { type : 'INCREMENT'};
+				return action;
+			},
+			decrement(){
+				var action = { type : 'DECREMENT'};
+				return action;
+			}
+		}
 
-		let bugActions = SM.bindActionCreators(bugActionCreators, store.dispatch);
-		
+		{/* Store */}
+
+		let store = Redux.createStore(rootReducer);
+
+		{/* Binding Actions*/}
+		let bugActions = Redux.bindActionCreators(bugActionCreators, store.dispatch);
+		let spinnerActions = Redux.bindActionCreators(spinnerActionCreators, store.dispatch);
+
+		{/* UI */}
 		let BugStats = ({bugs}) => {
 			let closedCount = bugs.reduce((result, bug) => bug.isClosed ? ++result : result, 0);
 			return(
@@ -184,9 +214,26 @@
 			}
 		}
 
+		let Spinner = ({ spinnerValue, increment, decrement }) => (
+			<div>
+				<input type="button" value="Decrement" onClick={decrement}/>
+				<span> [ {spinnerValue} ] </span>
+				<input type="button" value="Increment" onClick={increment}/>
+			</div>
+		);
+
 		function renderApp(){
-			let bugs = store.getState();
-			ReactDOM.render(<BugTracker bugs={bugs} {...bugActions} />,
+			let storeState = store.getState(),
+				bugs = storeState.bugsData,
+				spinnerValue = storeState.spinnerData;
+
+			
+			ReactDOM.render(
+				<div>
+					<Spinner spinnerValue={spinnerValue} {...spinnerActions}/>
+					<hr />
+					<BugTracker bugs={bugs} {...bugActions} />
+				</div>,
 				document.getElementById('root'));
 		}
 		renderApp();
