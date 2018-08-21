@@ -1,6 +1,13 @@
+import { save } from '../services/bugApi'
+
 export function toggle(bugToToggle){
-    let toggledBug = {...bugToToggle, isClosed : !bugToToggle.isClosed};
-    let updateAction = { type : 'UPDATE', payload : {oldBug : bugToToggle, newBug : toggledBug}};
-    return updateAction;
+    return function(dispatch){
+        let toggledBugData = {...bugToToggle, isClosed : !bugToToggle.isClosed};
+        save(toggledBugData)
+            .then(toggledBug => {
+                let updateAction = { type : 'UPDATE', payload :toggledBug };
+                dispatch(updateAction);
+            })
+    }
 }
 //export default toggle;
