@@ -51,17 +51,40 @@
 		9. make the bugs accessible using unique urls
 	</script>
 	<script type="text/babel">
+
+		function bugsReducer(currentState = [], action){
+			if (action.type === 'ADD_NEW'){
+				let newBug = action.payload;
+				let newState = [...currentState, newBug];
+				return newState;
+			}
+			return currentState;
+		}
+
+		let bugActionCreators = {
+			addNew(newBugName){
+				let newBug = {
+					name : newBugName,
+					isClosed : false
+				};
+				let addNewAction = { type : 'ADD_NEW', payload : newBug };
+				return addNewAction;
+			}
+		}
+
+		let store = SM.createStore(bugsReducer);
+
+		let bugActions = SM.bindActionCreators(bugActionCreators, store.dispatch);
 		
 		class BugTracker extends React.Component{
 			txtNewBugNameRef = React.createRef();
 
 			onCreateNewClick = () => {
-				this.props.model.addNew(this.txtNewBugNameRef.current.value);
+				this.props.addNew(this.txtNewBugNameRef.current.value);
 			}
 			
 			render(){
-				let { model } = this.props,
-					bugs = model.getAll(),
+				let { bugs } = this.props,
 					bugItems = bugs.map((bug, index) => (
 						<BugItem model={bug} key={index}/>
 					))
@@ -115,7 +138,13 @@
 			}
 		}
 
-		
+		function renderApp(){
+			let bugs = store.getState();
+			ReactDOM.render(<BugTracker bugs={bugs} {...bugActions} />,
+				document.getElementById('root'));
+		}
+		renderApp();
+		store.subscribe(renderApp);
 	</script>
 </head>
 <body>
